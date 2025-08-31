@@ -57,7 +57,7 @@ function maxRecheiosPermitidos(shape, sizeId) {
 }
 
 // ===================== COMPONENTE =====================
-export default function App() {
+export default function MonyBolosApp() {
   const [shape, setShape] = useState("redondo");
   const [sizeId, setSizeId] = useState(SIZES.redondo[0].id);
   const [massa, setMassa] = useState(MASSAS[0]);
@@ -160,8 +160,8 @@ export default function App() {
                     setRecheios([]); // reset recheios por causa da regra de limite
                   }}
                   className={`px-4 py-2 rounded-xl border text-sm transition shadow-sm ${shape === opt.k
-                      ? "bg-pink-600 text-white border-pink-600"
-                      : "bg-white hover:bg-pink-50 border-slate-200"
+                    ? "bg-pink-600 text-white border-pink-600"
+                    : "bg-white hover:bg-pink-50 border-slate-200"
                     }`}
                 >
                   {opt.label}
@@ -233,10 +233,10 @@ export default function App() {
                     onClick={() => handleToggleRecheio(r)}
                     disabled={disabled}
                     className={`w-full text-left px-3 py-2 rounded-xl border text-sm shadow-sm transition ${active
-                        ? "bg-pink-600 text-white border-pink-600"
-                        : disabled
-                          ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
-                          : "bg-white hover:bg-pink-50 border-slate-200"
+                      ? "bg-pink-600 text-white border-pink-600"
+                      : disabled
+                        ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                        : "bg-white hover:bg-pink-50 border-slate-200"
                       }`}
                   >
                     {r}
@@ -309,4 +309,28 @@ export default function App() {
             <div className="mt-6 border-t pt-4">
               <div className="flex items-baseline justify-between">
                 <span className="text-slate-500">Total</span>
-                <span
+                <span className="text-2xl font-extrabold">{brl(total)}</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Valor estimado. Confirmação final pelo WhatsApp.</p>
+            </div>
+
+            <button
+              onClick={sendToWhatsApp}
+              disabled={!canSend}
+              className={`w-full mt-4 px-4 py-3 rounded-xl shadow-sm font-semibold transition ${canSend
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                }`}
+            >
+              Finalizar no WhatsApp
+            </button>
+          </div>
+        </motion.aside>
+      </main>
+
+      <footer className="max-w-5xl mx-auto p-6 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} Mony Bolos — preços base e regras conforme catálogo. Sem topper/glitter. Não realizamos entrega.
+      </footer>
+    </div>
+  );
+}
