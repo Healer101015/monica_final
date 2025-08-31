@@ -6,16 +6,16 @@ const WHATSAPP_NUMBER = "5571982330587"; // 55 + DDD + número
 
 const SIZES = {
   redondo: [
-    { id: "r15", label: "15 cm (12–15 fatias)", cm: 15, slices: "12–15", base: 120 },
-    { id: "r22", label: "22 cm (22–25 fatias)", cm: 22, slices: "22–25", base: 165 },
-    { id: "r27", label: "27 cm (35–37 fatias)", cm: 27, slices: "35–37", base: 230 },
-    { id: "r34", label: "34 cm (50–55 fatias)", cm: 34, slices: "50–55", base: 280 },
+    { id: "r15", label: "15 cm (12–15 fatias)", cm: 15, slices: "12–15", base: 130 },
+    { id: "r22", label: "22 cm (22–25 fatias)", cm: 22, slices: "22–25", base: 175 },
+    { id: "r27", label: "27 cm (35–37 fatias)", cm: 27, slices: "35–37", base: 240 },
+    { id: "r34", label: "34 cm (50–55 fatias)", cm: 34, slices: "50–55", base: 290 },
   ],
   retangular: [
-    { id: "t28", label: "28 cm (35–38 fatias)", cm: 28, slices: "35–38", base: 240 },
-    { id: "t32", label: "32 cm (45–48 fatias)", cm: 32, slices: "45–48", base: 270 },
-    { id: "t37", label: "37 cm (55–58 fatias)", cm: 37, slices: "55–58", base: 300 },
-    { id: "t43", label: "43 cm (69–72 fatias)", cm: 43, slices: "69–72", base: 350 },
+    { id: "t28", label: "28 cm (35–38 fatias)", cm: 28, slices: "35–38", base: 250 },
+    { id: "t32", label: "32 cm (45–48 fatias)", cm: 32, slices: "45–48", base: 280 },
+    { id: "t37", label: "37 cm (55–58 fatias)", cm: 37, slices: "55–58", base: 310 },
+    { id: "t43", label: "43 cm (69–72 fatias)", cm: 43, slices: "69–72", base: 360 },
   ],
 };
 
@@ -56,11 +56,20 @@ function maxRecheiosPermitidos(shape, sizeId) {
   return sel.cm >= 27 ? 3 : 1;
 }
 
+function maxMassasPermitidas(shape, sizeId) {
+  if (shape === "retangular") return 2;
+  if (shape === "redondo") {
+    const sel = SIZES.redondo.find((s) => s.id === sizeId);
+    if (sel && (sel.cm === 27 || sel.cm === 34)) return 2;
+  }
+  return 1;
+}
+
 // ===================== COMPONENTE =====================
 export default function MonyBolosApp() {
   const [shape, setShape] = useState("redondo");
   const [sizeId, setSizeId] = useState(SIZES.redondo[0].id);
-  const [massa, setMassa] = useState(MASSAS[0]);
+  const [massas, setMassas] = useState([]);
   const [recheios, setRecheios] = useState([]);
   const [acrescimos, setAcrescimos] = useState([]);
   const [observacoes, setObservacoes] = useState("");
@@ -68,6 +77,7 @@ export default function MonyBolosApp() {
   const sizeList = SIZES[shape];
   const selectedSize = sizeList.find((s) => s.id === sizeId) ?? sizeList[0];
   const maxRecheios = maxRecheiosPermitidos(shape, sizeId);
+  const maxMassas = maxMassasPermitidas(shape, sizeId);
 
   const total = (() => {
     let total = selectedSize.base;
@@ -75,6 +85,16 @@ export default function MonyBolosApp() {
     for (const a of acrescimos) total += a.value;
     return total;
   })();
+
+  const handleToggleMassa = (opt) => {
+    const idx = massas.indexOf(opt);
+    if (idx >= 0) {
+      setMassas(massas.filter((m) => m !== opt));
+    } else {
+      if (massas.length >= maxMassas) return;
+      setMassas([...massas, opt]);
+    }
+  };
 
   const handleToggleRecheio = (opt) => {
     const idx = recheios.indexOf(opt);
@@ -95,7 +115,7 @@ export default function MonyBolosApp() {
   const resumo = {
     formato: shape === "redondo" ? "Redondo" : "Retangular",
     tamanho: selectedSize.label,
-    massa,
+    massas: massas.length ? massas.join(", ") : "—",
     recheios: recheios.length ? recheios.join(", ") : "—",
     acrescimos:
       acrescimos.length ? acrescimos.map((a) => `${a.label} (+${brl(a.value)})`).join(", ") : "—",
@@ -103,14 +123,14 @@ export default function MonyBolosApp() {
     total,
   };
 
-  const canSend = massa && selectedSize && (recheios.length > 0 || maxRecheios === 1);
+  const canSend = massas.length > 0 && selectedSize && (recheios.length > 0 || maxRecheios === 1);
 
   const sendToWhatsApp = () => {
     const msg = [
       "Olá, Mony Bolos! Quero solicitar um pedido:",
       `• Formato: ${resumo.formato}`,
       `• Tamanho: ${resumo.tamanho}`,
-      `• Massa: ${resumo.massa}`,
+      `• Massa(s): ${resumo.massas}`,
       `• Recheio(s): ${resumo.recheios}`,
       `• Acréscimos: ${resumo.acrescimos}`,
       `• Observações: ${resumo.observacoes}`,
@@ -163,6 +183,7 @@ export default function MonyBolosApp() {
                     setShape(opt.k);
                     const first = SIZES[opt.k][0]?.id;
                     if (first) setSizeId(first);
+                    setMassas([]);
                     setRecheios([]); // reset recheios por causa da regra de limite
                   }}
                   className={`px-4 py-2 rounded-xl border text-sm transition shadow-sm ${shape === opt.k
@@ -190,6 +211,7 @@ export default function MonyBolosApp() {
                     checked={sizeId === s.id}
                     onChange={() => {
                       setSizeId(s.id);
+                      setMassas([]);
                       setRecheios([]); // reset pelo limite
                     }}
                   />
@@ -208,18 +230,30 @@ export default function MonyBolosApp() {
 
           {/* Massa */}
           <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-4 sm:p-6 mb-4">
-            <h2 className="text-lg font-bold mb-3">Massa</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">Massa(s)</h2>
+              <span className="text-xs text-slate-500">Selecione até {maxMassas}.</span>
+            </div>
             <div className="flex flex-wrap gap-2">
-              {MASSAS.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMassa(m)}
-                  className={`px-3 py-2 rounded-xl border text-sm shadow-sm transition ${massa === m ? "bg-pink-600 text-white border-pink-600" : "bg-white hover:bg-pink-50 border-slate-200"
-                    }`}
-                >
-                  {m}
-                </button>
-              ))}
+              {MASSAS.map((m) => {
+                const active = massas.includes(m);
+                const disabled = !active && massas.length >= maxMassas;
+                return (
+                  <button
+                    key={m}
+                    onClick={() => handleToggleMassa(m)}
+                    disabled={disabled}
+                    className={`px-3 py-2 rounded-xl border text-sm shadow-sm transition ${active
+                      ? "bg-pink-600 text-white border-pink-600"
+                      : disabled
+                        ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                        : "bg-white hover:bg-pink-50 border-slate-200"
+                      }`}
+                  >
+                    {m}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -295,7 +329,7 @@ export default function MonyBolosApp() {
             <ul className="space-y-3 text-sm">
               <li className="flex justify-between gap-3"><span className="text-slate-500">Formato</span><span className="font-medium">{resumo.formato}</span></li>
               <li className="flex justify-between gap-3"><span className="text-slate-500">Tamanho</span><span className="font-medium text-right">{resumo.tamanho}</span></li>
-              <li className="flex justify-between gap-3"><span className="text-slate-500">Massa</span><span className="font-medium">{resumo.massa}</span></li>
+              <li className="flex justify-between gap-3"><span className="text-slate-500">Massa(s)</span><span className="font-medium">{resumo.massas}</span></li>
               <li>
                 <div className="text-slate-500 mb-1">Recheio(s)</div>
                 <div className="font-medium">{resumo.recheios}</div>
