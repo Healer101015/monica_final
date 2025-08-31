@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from "react";
 import logo from "./assets/logo.png"; // Import the logo image
 
+// ===================== DADOS DA GALERIA =====================
+// Importe as imagens dos seus bolos.
+// Certifique-se de que as imagens estão na pasta `src/pages/assets`
+import bolo1 from "./assets/bolo1.jpg";
+import bolo2 from "./assets/bolo2.jpg";
+import bolo3 from "./assets/bolo3.jpg";
+import bolo4 from "./assets/bolo4.jpg";
+import bolo5 from "./assets/bolo5.jpg";
+import bolo6 from "./assets/bolo6.jpg";
+import bolo7 from "./assets/bolo7.jpg";
+import bolo8 from "./assets/bolo8.jpg";
+
+const cakeImages = [
+  bolo1,
+  bolo2,
+  bolo3,
+  bolo4,
+  bolo5,
+  bolo6,
+  bolo7,
+  bolo8,
+];
+
 // ===================== DADOS DO NEGÓCIO =====================
 const WHATSAPP_NUMBER = "5571982330587"; // 55 + DDD + número
 
@@ -39,7 +62,6 @@ const RECHEIOS = [
   "A escolher",
 ];
 
-// Acréscimos conforme instruções
 const ACRESCIMOS = [
   { id: "morango_chocobranco", label: "Morango e/ou Chocolate Branco", value: 10 },
   { id: "castanha_nozes", label: "Castanha e/ou Nozes", value: 15 },
@@ -52,7 +74,6 @@ function maxRecheiosPermitidos(shape, sizeId) {
   const lista = SIZES[shape] || [];
   const sel = lista.find((s) => s.id === sizeId);
   if (!sel) return 1;
-  // Regra: Menos de 27 cm → 1 recheio. A partir de 27 cm → até 3 recheios
   return sel.cm >= 27 ? 3 : 1;
 }
 
@@ -73,6 +94,7 @@ export default function MonyBolosApp() {
   const [recheios, setRecheios] = useState([]);
   const [acrescimos, setAcrescimos] = useState([]);
   const [observacoes, setObservacoes] = useState("");
+  const [showGallery, setShowGallery] = useState(false); // Estado para controlar a visibilidade da galeria
 
   const sizeList = SIZES[shape];
   const selectedSize = sizeList.find((s) => s.id === sizeId) ?? sizeList[0];
@@ -81,7 +103,6 @@ export default function MonyBolosApp() {
 
   const total = (() => {
     let total = selectedSize.base;
-    // Acréscimos fixos
     for (const a of acrescimos) total += a.value;
     return total;
   })();
@@ -101,7 +122,7 @@ export default function MonyBolosApp() {
     if (idx >= 0) {
       setRecheios(recheios.filter((r) => r !== opt));
     } else {
-      if (recheios.length >= maxRecheios) return; // bloqueia se atingiu o máximo
+      if (recheios.length >= maxRecheios) return;
       setRecheios([...recheios, opt]);
     }
   };
@@ -142,7 +163,6 @@ export default function MonyBolosApp() {
     window.open(url, "_blank");
   };
 
-  // Incluindo a tag script para o Tailwind CSS para que os estilos funcionem.
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://cdn.tailwindcss.com";
@@ -160,12 +180,19 @@ export default function MonyBolosApp() {
             <img src={logo} alt="Mony Bolos Logo" className="w-10 h-10 rounded-2xl" />
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Mony Bolos</h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500">Monte seu bolo • Preço em tempo real</p>
+          <div className="flex items-center gap-4">
+            <p className="hidden sm:block text-xs sm:text-sm text-slate-500">Monte seu bolo • Preço em tempo real</p>
+            <button
+              onClick={() => setShowGallery(!showGallery)}
+              className="px-3 py-2 rounded-xl border text-sm shadow-sm transition bg-white hover:bg-pink-50 border-slate-200"
+            >
+              {showGallery ? "Esconder Bolos" : "Ver Bolos"}
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto p-4 grid lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Coluna esquerda: seleções */}
         <section
           className="lg:col-span-2"
         >
@@ -184,7 +211,7 @@ export default function MonyBolosApp() {
                     const first = SIZES[opt.k][0]?.id;
                     if (first) setSizeId(first);
                     setMassas([]);
-                    setRecheios([]); // reset recheios por causa da regra de limite
+                    setRecheios([]);
                   }}
                   className={`px-4 py-2 rounded-xl border text-sm transition shadow-sm ${shape === opt.k
                     ? "bg-pink-600 text-white border-pink-600"
@@ -212,7 +239,7 @@ export default function MonyBolosApp() {
                     onChange={() => {
                       setSizeId(s.id);
                       setMassas([]);
-                      setRecheios([]); // reset pelo limite
+                      setRecheios([]);
                     }}
                   />
                   <div className="flex items-start justify-between gap-3">
@@ -319,7 +346,6 @@ export default function MonyBolosApp() {
           </div>
         </section>
 
-        {/* Coluna direita: resumo */}
         <aside
           className="lg:col-span-1"
         >
@@ -365,6 +391,26 @@ export default function MonyBolosApp() {
           </div>
         </aside>
       </main>
+
+      {/* Seção da Galeria (condicional) */}
+      {showGallery && (
+        <section className="max-w-5xl mx-auto p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-4 sm:p-6">
+            <h2 className="text-2xl font-bold text-center mb-6">Nossos Bolos</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {cakeImages.map((image, index) => (
+                <div key={index} className="overflow-hidden rounded-lg shadow-lg group">
+                  <img
+                    src={image}
+                    alt={`Bolo ${index + 1}`}
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <footer className="max-w-5xl mx-auto p-6 text-center text-xs text-slate-500">
         © {new Date().getFullYear()} Mony Bolos — preços base e regras conforme catálogo. Sem topper/glitter. Não realizamos entrega.
