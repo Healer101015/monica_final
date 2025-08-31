@@ -48,6 +48,8 @@ const MASSAS = [
   "Coco",
   "Mesclado",
   "Formigueiro",
+  "Limão",
+  "Maracujá",
 ];
 
 const RECHEIOS = [
@@ -60,6 +62,7 @@ const RECHEIOS = [
   "Ninho com Oreo",
   "Amendoim",
   "Ameixa",
+  "Limão",
   "A escolher",
 ];
 
