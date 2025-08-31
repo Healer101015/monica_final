@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import logo from "./assets/logo.png"; // Import the logo image
 
 // ===================== DADOS DO NEGÓCIO =====================
 const WHATSAPP_NUMBER = "5571982330587"; // 55 + DDD + número
@@ -136,7 +137,7 @@ export default function MonyBolosApp() {
       <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b border-pink-100">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-pink-200 grid place-items-center text-pink-700 font-black">🍰</div>
+            <img src={logo} alt="Mony Bolos Logo" className="w-10 h-10 rounded-2xl" />
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Mony Bolos</h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">Monte seu bolo • Preço em tempo real</p>
