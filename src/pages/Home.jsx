@@ -56,6 +56,7 @@ const RECHEIOS = [
   "Prestígio",
   "Maracujá",
   "Chocolate branco (c/ acréscimo)",
+  "Ninho",
   "Ninho com Oreo",
   "Amendoim",
   "Ameixa",
