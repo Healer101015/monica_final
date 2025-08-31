@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
 
 // ===================== DADOS DO NEGÓCIO =====================
 const WHATSAPP_NUMBER = "5571982330587"; // 55 + DDD + número
@@ -69,12 +68,12 @@ export default function MonyBolosApp() {
   const selectedSize = sizeList.find((s) => s.id === sizeId) ?? sizeList[0];
   const maxRecheios = maxRecheiosPermitidos(shape, sizeId);
 
-  const total = useMemo(() => {
+  const total = (() => {
     let total = selectedSize.base;
     // Acréscimos fixos
     for (const a of acrescimos) total += a.value;
     return total;
-  }, [selectedSize, acrescimos]);
+  })();
 
   const handleToggleRecheio = (opt) => {
     const idx = recheios.indexOf(opt);
@@ -92,18 +91,16 @@ export default function MonyBolosApp() {
     else setAcrescimos([...acrescimos, acc]);
   };
 
-  const resumo = useMemo(() => {
-    return {
-      formato: shape === "redondo" ? "Redondo" : "Retangular",
-      tamanho: selectedSize.label,
-      massa,
-      recheios: recheios.length ? recheios.join(", ") : "—",
-      acrescimos:
-        acrescimos.length ? acrescimos.map((a) => `${a.label} (+${brl(a.value)})`).join(", ") : "—",
-      observacoes: observacoes || "—",
-      total,
-    };
-  }, [shape, selectedSize, massa, recheios, acrescimos, observacoes, total]);
+  const resumo = {
+    formato: shape === "redondo" ? "Redondo" : "Retangular",
+    tamanho: selectedSize.label,
+    massa,
+    recheios: recheios.length ? recheios.join(", ") : "—",
+    acrescimos:
+      acrescimos.length ? acrescimos.map((a) => `${a.label} (+${brl(a.value)})`).join(", ") : "—",
+    observacoes: observacoes || "—",
+    total,
+  };
 
   const canSend = massa && selectedSize && (recheios.length > 0 || maxRecheios === 1);
 
@@ -124,6 +121,16 @@ export default function MonyBolosApp() {
     window.open(url, "_blank");
   };
 
+  // Incluindo a tag script para o Tailwind CSS para que os estilos funcionem.
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.tailwindcss.com";
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white text-slate-800">
       <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b border-pink-100">
@@ -138,9 +145,7 @@ export default function MonyBolosApp() {
 
       <main className="max-w-5xl mx-auto p-4 grid lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Coluna esquerda: seleções */}
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+        <section
           className="lg:col-span-2"
         >
           {/* Formato */}
@@ -277,12 +282,10 @@ export default function MonyBolosApp() {
             />
             <p className="text-xs text-slate-500 mt-2">Não inclui topo de bolo (topper) nem glitter. Não fazemos entrega.</p>
           </div>
-        </motion.section>
+        </section>
 
         {/* Coluna direita: resumo */}
-        <motion.aside
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+        <aside
           className="lg:col-span-1"
         >
           <div className="bg-white rounded-2xl shadow-sm border border-pink-100 p-4 sm:p-6 sticky top-20">
@@ -325,7 +328,7 @@ export default function MonyBolosApp() {
               Finalizar no WhatsApp
             </button>
           </div>
-        </motion.aside>
+        </aside>
       </main>
 
       <footer className="max-w-5xl mx-auto p-6 text-center text-xs text-slate-500">
